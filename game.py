@@ -363,6 +363,7 @@ class Player(pygame.sprite.Sprite):
                 self.death_counter = 0
 
         def check_life():
+            self.inform['health'] = min(self.inform['health'], 3)
             if self.inform['health'] == 0:
                 self.death()
 
@@ -484,7 +485,7 @@ class Enemy(pygame.sprite.Sprite):
             # self.rect = self.rect.move(sign(dx) * self.inform['speed'], sign(dy) * self.inform['speed'])
 
         def check_life():
-            if self.inform['health'] == 0:
+            if self.inform['health'] <= 0:
                 self.kill()
 
         self.bullet_counter += 1

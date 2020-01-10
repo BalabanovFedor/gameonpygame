@@ -53,7 +53,8 @@ def footsp():
 def rulsp():
     intro_text = ["Для ходьбы используйте",
                   "клавиши WASD,",
-                  "для стрельбы - стрелочки.",
+                  "для стрельбы - стрелочки,",
+                  "рестарт - R.",
                   "---------------------",
                   "Замочите всех в этих",
                   "подземельях)))"]
@@ -104,42 +105,49 @@ class Button(pygame.sprite.Sprite):
     def add_status(self, bool):
         self.status = bool
 
+def clear():
+    global btn_group, menubtn_group, levelbtn_group, all_sprites, rulesp_group, footsp_group, FPS
+    btn_group = pygame.sprite.Group()
+    menubtn_group = pygame.sprite.Group()
+    levelbtn_group = pygame.sprite.Group()
+    all_sprites = pygame.sprite.Group()
+    rulesp_group = pygame.sprite.Group()
+    footsp_group = pygame.sprite.Group()
+    footsp()
+    rulsp()
+    buttons_init()
+    FPS = 60
 
-pygame.init()
+
+def menu():
+    pygame.init()
+
+    clear()
+    clock = pygame.time.Clock()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = event.pos
+                for btn in btn_group:
+                    btn.event(pos)
+
+        screen.fill(pygame.Color('black'))
+
+        check_menu()
+        menubtn_group.draw(screen)
+        footsp_group.draw(screen)
+
+        clock.tick(FPS)
+        pygame.display.flip()
+    pygame.quit()
+
 
 purple = pygame.Color('#a349a4')
 
-btn_group = pygame.sprite.Group()
-menubtn_group = pygame.sprite.Group()
-levelbtn_group = pygame.sprite.Group()
-all_sprites = pygame.sprite.Group()
-rulesp_group = pygame.sprite.Group()
-footsp_group = pygame.sprite.Group()
 
-footsp()
-rulsp()
-
-buttons_init()
-
-FPS = 60
-clock = pygame.time.Clock()
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            pos = event.pos
-            for btn in btn_group:
-                btn.event(pos)
-
-    screen.fill(pygame.Color('black'))
-
-    check_menu()
-    menubtn_group.draw(screen)
-    footsp_group.draw(screen)
-
-    clock.tick(FPS)
-    pygame.display.flip()
-pygame.quit()
+if __name__ == '__main__':
+    menu()
