@@ -120,10 +120,14 @@ def generate_level(level):
 
 
 def win(map):
+    pygame.mixer.pause()
+    mus = pygame.mixer.Sound("data/music/win.wav")
+    mus.play()
+
     font = pygame.font.Font(None, 50)
     string_rendered = font.render("!!!WIIIINEER!!!", 1, pygame.Color('white'))
     intro_rect = string_rendered.get_rect()
-    intro_rect = intro_rect.move((WIDTH-intro_rect[2])//2, (HEIGHT-intro_rect[3])//2)
+    intro_rect = intro_rect.move((WIDTH - intro_rect[2]) // 2, (HEIGHT - intro_rect[3]) // 2)
 
     restart = False
     screen.blit(string_rendered, intro_rect)
@@ -145,6 +149,10 @@ def win(map):
 
 
 def gameover(map):
+    pygame.mixer.pause()
+    mus = pygame.mixer.Sound("data/music/wasted.wav")
+    mus.play()
+
     font = pygame.font.Font(None, 50)
     string_rendered = font.render("LOSE(((", 1, pygame.Color('white'))
     img = load_image('wasted.png', -1)
@@ -169,6 +177,7 @@ def gameover(map):
     if restart:
         game(map)
 
+
 def check_win():
     if len(enemy_group.sprites()) == 0:
         return True
@@ -180,12 +189,12 @@ def check_gameover():
         return True
     return False
 
+
 class Statusbar(pygame.sprite.Sprite):
     def __init__(self):
         super(Statusbar, self).__init__(statusbar_group)
         self.update_image()
         self.rect = self.image.get_rect()
-
 
     def update_image(self):
         col = pygame.Color('#14121c')
@@ -211,7 +220,7 @@ class Statusbar(pygame.sprite.Sprite):
             text_coord += intro_rect.height
             img.blit(string_rendered, intro_rect)
 
-        img= img.convert()
+        img = img.convert()
         colorkey = img.get_at((0, 0))
         img.set_colorkey(colorkey)
 
@@ -289,17 +298,28 @@ class Player(pygame.sprite.Sprite):
         def add_speed():
             self.vup = self.vleft = -1 * self.inform['speed']
             self.vdown = self.vright = self.inform['speed']
+
+            up, down, left, right = True, True, True, True
             if pygame.sprite.spritecollideany(self, wall_group):
                 for wall in pygame.sprite.groupcollide(player_group, wall_group, False, False)[self]:
                     wall_rect = wall.rect
                     if wall_rect[1] + wall_rect[3] - self.inform['speed'] == self.rect[1]:
                         self.vup = 0
+                        up = not up
                     elif wall_rect[1] == self.rect[1] + self.rect[3] - self.inform['speed']:
                         self.vdown = 0
+                        down = not down
                     elif wall_rect[0] + wall_rect[2] - self.inform['speed'] == self.rect[0]:
                         self.vleft = 0
+                        left = not left
                     elif wall_rect[0] == self.rect[0] + self.rect[2] - self.inform['speed']:
                         self.vright = 0
+                        right = not right
+                if not right or not left:
+                    if not up:
+                        self.vup = -1 * self.inform['speed']
+                    elif not down:
+                        self.vdown = self.inform['speed']
 
         def add_img():
             if self.inform['go']:
@@ -420,17 +440,28 @@ class Enemy(pygame.sprite.Sprite):
         def add_speed():
             self.vup = self.vleft = -1 * self.inform['speed']
             self.vdown = self.vright = self.inform['speed']
+
+            up, down, left, right = True, True, True, True
             if pygame.sprite.spritecollideany(self, wall_group):
                 for wall in pygame.sprite.groupcollide(enemy_group, wall_group, False, False)[self]:
                     wall_rect = wall.rect
                     if wall_rect[1] + wall_rect[3] - self.inform['speed'] == self.rect[1]:
                         self.vup = 0
+                        up = not up
                     elif wall_rect[1] == self.rect[1] + self.rect[3] - self.inform['speed']:
                         self.vdown = 0
+                        down = not down
                     elif wall_rect[0] + wall_rect[2] - self.inform['speed'] == self.rect[0]:
                         self.vleft = 0
+                        left = not left
                     elif wall_rect[0] == self.rect[0] + self.rect[2] - self.inform['speed']:
                         self.vright = 0
+                        right = not right
+                if not right or not left:
+                    if not up:
+                        self.vup = -1 * self.inform['speed']
+                    elif not down:
+                        self.vdown = self.inform['speed']
 
         def add_side_go(dx, dy):
             self.inform['go'] = False
@@ -632,6 +663,11 @@ def game(map):
             return (True, gameover)
         return (False,)
 
+    mix = pygame.mixer
+    mix.stop()
+    mix.music.load("data/music/game.wav")
+    mix.music.play(-1)
+
     clear()
     player, level_x, level_y = generate_level(load_level(map))
     camera = Camera()
@@ -668,14 +704,18 @@ def game(map):
         do_lst = check_game()
         if do_lst[0]:
             running = False
+    mix.music.stop()
     if do_lst[0]:
         do_lst[1](map)
     elif restart:
         game(map)
     clear()
+    mix.music.load("data/music/menu.wav")
+    mix.music.play(-1)
 
 
 pygame.init()
+pygame.mixer.init()
 
 BUFFS = ['health +1', 'power +1 900']
 
@@ -712,4 +752,3 @@ enemies = {'ghost': {'speed': 1,
                         'buffs': []}}
 BUTTONS = {}
 player, level_x, level_y = None, 1, 1
-

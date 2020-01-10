@@ -121,6 +121,11 @@ def clear():
 
 def menu():
     pygame.init()
+    pygame.mixer.init()
+    mix = pygame.mixer
+    mix.music.load("data/music/menu.wav")
+    mix.music.play(loops=-1)
+
 
     clear()
     clock = pygame.time.Clock()
@@ -140,6 +145,8 @@ def menu():
         check_menu()
         menubtn_group.draw(screen)
         footsp_group.draw(screen)
+
+        #mix.unpause()
 
         clock.tick(FPS)
         pygame.display.flip()
