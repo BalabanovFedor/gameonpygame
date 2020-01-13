@@ -68,13 +68,9 @@ def load_level(filename):
 
     # и подсчитываем максимальную длину
     max_width = max(WIDTH // tile_width, max(map(len, level_map))) + 8
-    if len(level_map) < HEIGHT / tile_height:
-        d = HEIGHT // tile_height - len(level_map) + 8
-        if d % 2 == 0:
-            level_map = d // 2 * [''] + level_map + d // 2 * ['']
-        else:
-            level_map = (d - 1) // 2 * [''] + level_map + ((d - 1) // 2 + 1) * ['']
-
+    # if len(level_map) < HEIGHT / tile_height+2:
+    d = 16
+    level_map = d // 2 * [''] + level_map + d // 2 * ['']
     # дополняем каждую строку пустыми клетками ('0')
     return list(map(lambda x: x.ljust(max_width, '0'), level_map))
 
@@ -442,9 +438,15 @@ class Enemy(pygame.sprite.Sprite):
             self.vdown = self.vright = self.inform['speed']
 
             up, down, left, right = True, True, True, True
-            if pygame.sprite.spritecollideany(self, wall_group):
+
+            if self.rect[0] + self.rect[2] < 0 or self.rect[1] + self.rect[3] < 0 or self.rect[0] > WIDTH or \
+                    self.rect[1] > HEIGHT:
+                self.vright, self.vleft, self.vdown, self.vup = 0, 0, 0, 0
+
+            elif pygame.sprite.spritecollideany(self, wall_group):
                 for wall in pygame.sprite.groupcollide(enemy_group, wall_group, False, False)[self]:
                     wall_rect = wall.rect
+
                     if wall_rect[1] + wall_rect[3] - self.inform['speed'] == self.rect[1]:
                         self.vup = 0
                         up = not up
@@ -457,6 +459,10 @@ class Enemy(pygame.sprite.Sprite):
                     elif wall_rect[0] == self.rect[0] + self.rect[2] - self.inform['speed']:
                         self.vright = 0
                         right = not right
+
+                    # else:
+                    #     self.vright, self.vleft, self.vdown, self.vup = 0,0,0,0
+
                 if not right or not left:
                     if not up:
                         self.vup = -1 * self.inform['speed']
@@ -502,6 +508,12 @@ class Enemy(pygame.sprite.Sprite):
         def motion():
             pl_rect = player.rect
             dx, dy = pl_rect[0] - self.rect[0], pl_rect[1] - self.rect[1]
+
+            if self.rect[0] > 32 * level_x - pl_rect[0]:
+                dx = 1
+            if self.rect[1] > 32 * level_y - pl_rect[1]:
+                dy = 1
+
             if dx <= 0:
                 self.rect = self.rect.move(self.vleft * abs(sign(dx)), 0)
             elif dx >= 0:
