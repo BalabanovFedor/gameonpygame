@@ -1,5 +1,5 @@
 import pygame
-from game import game, WIDTH, HEIGHT, screen, load_image
+from game import game, WIDTH, HEIGHT, screen, load_image, terminate
 
 
 def btn_img(s, color, fontStyle, fontHeight):
@@ -20,6 +20,9 @@ def buttons_init():
     levelbtns_init()
     Button('control', (all_sprites, menubtn_group, btn_group), (30, 130, 193, 50), rulesp_group.draw, (screen,),
            btn_img('CONTROL', purple, None, 60))
+    Button('exit', (all_sprites, menubtn_group, btn_group), (30, 210, 193, 50), terminate, None,
+           btn_img('EXIT', purple, None, 90))
+
     Button('easter egg', (all_sprites,), (500, 500, 12, 12), print,
            ("Мои поздравления!!! Это первая пасхалка. Осталось найти остальные"),
            btn_img('', pygame.Color('#f01010'), None, 1))
@@ -54,7 +57,8 @@ def rulsp():
     intro_text = ["Для ходьбы используйте",
                   "клавиши WASD,",
                   "для стрельбы - стрелочки,",
-                  "рестарт - R.",
+                  "рестарт - R,",
+                  "пауза - P.",
                   "---------------------",
                   "Замочите всех в этих",
                   "подземельях)))"]
@@ -105,6 +109,7 @@ class Button(pygame.sprite.Sprite):
     def add_status(self, bool):
         self.status = bool
 
+
 def clear():
     global btn_group, menubtn_group, levelbtn_group, all_sprites, rulesp_group, footsp_group, FPS
     btn_group = pygame.sprite.Group()
@@ -126,7 +131,6 @@ def menu():
     mix.music.load("data/music/menu.wav")
     mix.music.play(loops=-1)
 
-
     clear()
     clock = pygame.time.Clock()
 
@@ -146,7 +150,7 @@ def menu():
         menubtn_group.draw(screen)
         footsp_group.draw(screen)
 
-        #mix.unpause()
+        # mix.unpause()
 
         clock.tick(FPS)
         pygame.display.flip()
@@ -154,7 +158,6 @@ def menu():
 
 
 purple = pygame.Color('#a349a4')
-
 
 if __name__ == '__main__':
     menu()

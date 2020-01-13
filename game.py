@@ -186,6 +186,50 @@ def check_gameover():
     return False
 
 
+def pause():
+    """возвращает 2 bool значения: running и restart"""
+
+    intro_text = ["ПАУЗА",
+                  "----------",
+                  "рестарт - R",
+                  "выход - ESCAPE.",
+                  "Чтобы продолжить нажмите любую клавишу."]
+    font = pygame.font.Font(None, 30)
+    text_coord = 150
+    img = pygame.Surface((WIDTH, HEIGHT))
+    for line in intro_text:
+        string_rendered = font.render(line, 1, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+    # spg = pygame.sprite.Group()
+    # spr = pygame.sprite.Sprite(spg)
+    # spr.image = img
+    # spr.rect=img.get_rect()
+
+
+
+    result = [True, False]
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return (False, False)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    return (False, True)
+                elif event.key == pygame.K_ESCAPE:
+                    return (False, False)
+                else:
+                    return result
+       # spg.draw(screen)
+        clock.tick(FPS)
+        pygame.display.flip()
+
+
 class Statusbar(pygame.sprite.Sprite):
     def __init__(self):
         super(Statusbar, self).__init__(statusbar_group)
@@ -224,32 +268,6 @@ class Statusbar(pygame.sprite.Sprite):
 
     def update(self, *args):
         self.update_image()
-
-
-class AnimatedSprite(pygame.sprite.Sprite):
-    def __init__(self, sheet, columns, rows, x, y):
-        super().__init__(all_sprites)
-        self.frames = []
-        self.cut_sheet(sheet, columns, rows)
-        self.cur_frame = 0
-        self.image = self.frames[self.cur_frame]
-        self.rect = self.rect.move(x, y)
-        self.counter = [0, FPS // 5]  # счетчик и через сколько итераций менять
-
-    def cut_sheet(self, sheet, columns, rows):
-        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
-                                sheet.get_height() // rows)
-        for j in range(rows):
-            for i in range(columns):
-                frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(
-                    frame_location, self.rect.size)))
-
-    def update(self):
-        self.counter[0] += 1
-        if self.counter[0] % self.counter[1] == 0:
-            self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-            self.image = self.frames[self.cur_frame]
 
 
 class Tile(pygame.sprite.Sprite):
@@ -699,6 +717,9 @@ def game(map):
                 if event.key == pygame.K_r:
                     restart = True
                     running = False
+                if event.key == pygame.K_p:
+                    res = pause()
+                    running, restart = res
             elif event.type == pygame.KEYUP:
                 BUTTONS[event.key] = False
 
