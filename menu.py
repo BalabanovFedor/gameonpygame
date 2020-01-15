@@ -30,7 +30,7 @@ def buttons_init():
 
 def levelbtns_init():
     rect = pygame.Rect(0, 0, 35, 40)
-    levels = {1: '1.txt', 2: '2.txt', 3: '3.txt'}
+    levels = {1: '1.txt', 2: '2.txt', 3: '3.txt', 4: "4.txt"}
     x0, y0 = 280, 50
     space = 40
     for n, map in levels.items():

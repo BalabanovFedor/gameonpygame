@@ -80,7 +80,10 @@ def generate_level(level):
     global level_data
 
     level_data = {}
-    tiles = {'empty': '0', 'wall': '1', 'floor': '2', 'item': '5', 'sceleton': '7', 'ghost': '8', 'player': '9'}
+    tiles = {'empty': '0', 'wall': '1', 'floor': '2', 'item': '3',
+             'slime': '4', 'spider': '5', 'bat': '6',
+             'sceleton': '7', 'ghost': '8',
+             'player': '9'}
     new_player, x, y = None, None, None
     anim_coords = {}
     enem = []
@@ -106,6 +109,15 @@ def generate_level(level):
             elif level[y][x] == tiles['sceleton']:
                 Tile('floor', x, y)
                 enem.append((x, y, 'sceleton'))
+            elif level[y][x] == tiles['bat']:
+                Tile('floor', x, y)
+                enem.append((x, y, 'bat'))
+            elif level[y][x] == tiles['spider']:
+                Tile('floor', x, y)
+                enem.append((x, y, 'spider'))
+            elif level[y][x] == tiles['slime']:
+                Tile('floor', x, y)
+                enem.append((x, y, 'slime'))
 
     new_player = Player(*anim_coords['player'])
     for e in enem:
@@ -210,8 +222,6 @@ def pause():
     # spr.image = img
     # spr.rect=img.get_rect()
 
-
-
     result = [True, False]
     running = True
     while running:
@@ -225,7 +235,7 @@ def pause():
                     return (False, False)
                 else:
                     return result
-       # spg.draw(screen)
+        # spg.draw(screen)
         clock.tick(FPS)
         pygame.display.flip()
 
@@ -438,6 +448,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image = self.frames[self.side][self.cur_frame]
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
         self.bullet_counter = 0
+        self.type = type
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -547,7 +558,7 @@ class Enemy(pygame.sprite.Sprite):
 
         def check_life():
             if self.inform['health'] <= 0:
-                self.kill()
+                self.death()
 
         self.bullet_counter += 1
         self.counter += 1
@@ -565,6 +576,14 @@ class Enemy(pygame.sprite.Sprite):
             if len(buff) == 3:
                 b = buff[:2] + [self.counter + int(buff[-1])]
                 self.inform['buffs'].append(b)
+
+    def death(self):
+        if self.type != 'ghost':
+            ds = pygame.sprite.Sprite(deadenemy_group, all_sprites)
+            ds.image = load_image(f"dead_{self.type}.png", -1)
+            ds.rect = self.rect
+
+        self.kill()
 
 
 class Item(pygame.sprite.Sprite):
@@ -665,7 +684,7 @@ class Camera:
 
 
 def clear():
-    global player, level_x, level_y, clock, all_sprites, tiles_group, wall_group, animated_group, player_group, enemy_group, statusbar_group, BUTTONS
+    global player, level_x, level_y, clock, deadenemy_group, all_sprites, tiles_group, wall_group, animated_group, player_group, enemy_group, statusbar_group, BUTTONS
 
     player, level_x, level_y = None, 0, 0
 
@@ -678,6 +697,7 @@ def clear():
     player_group = pygame.sprite.Group()
     enemy_group = pygame.sprite.Group()
     statusbar_group = pygame.sprite.Group()
+    deadenemy_group = pygame.sprite.Group()
 
     BUTTONS = {}
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -692,6 +712,11 @@ def game(map):
         if check_gameover():
             return (True, gameover)
         return (False,)
+
+    def draw():
+        tiles_group.draw(screen)
+        deadenemy_group.draw(screen)
+        animated_group.draw(screen)
 
     mix = pygame.mixer
     mix.stop()
@@ -727,7 +752,7 @@ def game(map):
         for sprite in all_sprites:
             camera.apply(sprite)
         all_sprites.update()
-        all_sprites.draw(screen)
+        draw()
         statusbar_group.update()
         statusbar_group.draw(screen)
 
@@ -750,7 +775,7 @@ def game(map):
 pygame.init()
 pygame.mixer.init()
 
-BUFFS = ['health +1', 'power +1 900']
+BUFFS = ['health +1', 'power +1 300']
 
 tile_width = tile_height = 32
 WIDTH = HEIGHT = 512
@@ -764,6 +789,7 @@ wall_group = pygame.sprite.Group()
 animated_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
+deadenemy_group = pygame.sprite.Group()
 statusbar_group = pygame.sprite.Group()
 
 tile_images = {'wall': load_image('wall.png'),
@@ -774,6 +800,9 @@ animated_images = {'player': load_image('player.png', -1),
                    'ghost': load_image('ghost.png', -1),
                    'sceleton': load_image('sceleton.png', -1),
                    'bullet': load_image('bullet.png', -1),
+                   'bat': load_image('bat.png', -1),
+                   'slime': load_image('slime.png', -1),
+                   'spider': load_image('spider.png', -1)
                    }
 enemies = {'ghost': {'speed': 1,
                      'health': 2,
@@ -782,6 +811,19 @@ enemies = {'ghost': {'speed': 1,
            'sceleton': {'speed': 1,
                         'health': 4,
                         'power': 1,
-                        'buffs': []}}
+                        'buffs': []},
+           'bat': {'speed': 2,
+                   'health': 1,
+                   'power': 1,
+                   'buffs': []},
+           'slime': {'speed': 1,
+                     'health': 4,
+                     'power': 1,
+                     'buffs': []},
+           'spider': {'speed': 2,
+                      'health': 1,
+                      'power': 1,
+                      'buffs': []}
+           }
 BUTTONS = {}
 player, level_x, level_y = None, 1, 1

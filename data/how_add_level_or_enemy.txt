@@ -1,0 +1,10 @@
+уровень:
+    файл типа число.txt
+    menu -> levelbtn_init() -> levels[число]=filename
+
+враг:
+    формат картинки 24х24
+    game -> animated_images[type]=load_image("filename", -1),
+            enemies[type]=enemies_inform,
+            generate_level() -> tiles[type]='number',
+                                в циклу добавить проверку
