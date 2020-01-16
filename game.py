@@ -31,35 +31,6 @@ def terminate():
     sys.exit()
 
 
-def start_screen():
-    intro_text = ["ЗАСТАВКА", "",
-                  "Правила игры",
-                  "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
-
-    fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
-    screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 50
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('black'))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                return  # начинаем игру
-        pygame.display.flip()
-        clock.tick(FPS)
-
-
 def load_level(filename):
     filename = "data/maps/" + filename
     # читаем уровень, убирая символы перевода строки
@@ -128,6 +99,7 @@ def generate_level(level):
 
 
 def win(map):
+    """действия при победе"""
     pygame.mixer.pause()
     mus = pygame.mixer.Sound("data/music/win.wav")
     mus.play()
@@ -157,6 +129,7 @@ def win(map):
 
 
 def gameover(map):
+    """действия при поражении"""
     pygame.mixer.pause()
     mus = pygame.mixer.Sound("data/music/wasted.wav")
     mus.play()
@@ -199,6 +172,7 @@ def check_gameover():
 
 
 def pause():
+    """действия при паузе"""
     """возвращает 2 bool значения: running и restart"""
 
     intro_text = ["ПАУЗА",
@@ -241,6 +215,8 @@ def pause():
 
 
 class Statusbar(pygame.sprite.Sprite):
+    """информаци об игроке"""
+
     def __init__(self):
         super(Statusbar, self).__init__(statusbar_group)
         self.update_image()
@@ -281,6 +257,8 @@ class Statusbar(pygame.sprite.Sprite):
 
 
 class Tile(pygame.sprite.Sprite):
+    """класс клетки"""
+
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(tiles_group, all_sprites)
         self.type = tile_type
@@ -291,6 +269,8 @@ class Tile(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
+    """класс игрока"""
+
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites, animated_group)
         self.inform = {'health': 3,
@@ -434,6 +414,8 @@ class Player(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
+    """класс врага"""
+
     def __init__(self, pos_x, pos_y, type):
         super().__init__(enemy_group, all_sprites, animated_group)
         self.inform = copy.deepcopy(enemies[type])
@@ -535,6 +517,7 @@ class Enemy(pygame.sprite.Sprite):
                 del self.inform['buffs'][i]
 
         def motion():
+            """движение спрайта"""
             pl_rect = player.rect
             dx, dy = pl_rect[0] - self.rect[0], pl_rect[1] - self.rect[1]
 
@@ -587,6 +570,8 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Item(pygame.sprite.Sprite):
+    """класс предмета имеющего бафф"""
+
     def __init__(self, x, y):
         super(Item, self).__init__(all_sprites, animated_group)
         self.frames = []
@@ -621,6 +606,8 @@ class Item(pygame.sprite.Sprite):
 
 
 class Bullet(pygame.sprite.Sprite):
+    """класс снаряда"""
+
     def __init__(self, direction, power, x, y):
         def add_im():
             if direction == 'down':
@@ -667,6 +654,8 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class Camera:
+    """класс камеры"""
+
     # зададим начальный сдвиг камеры
     def __init__(self):
         self.dx = 0
@@ -684,6 +673,7 @@ class Camera:
 
 
 def clear():
+    """переопределение всех данных игры"""
     global player, level_x, level_y, clock, deadenemy_group, all_sprites, tiles_group, wall_group, animated_group, player_group, enemy_group, statusbar_group, BUTTONS
 
     player, level_x, level_y = None, 0, 0
@@ -704,6 +694,7 @@ def clear():
 
 
 def game(map):
+    """функция осуществляющая процесс игры"""
     global player, level_x, level_y
 
     def check_game():
@@ -775,7 +766,7 @@ def game(map):
 pygame.init()
 pygame.mixer.init()
 
-BUFFS = ['health +1', 'power +1 300']
+BUFFS = ['health +1', 'power +1 300']  # возможные бафы
 
 tile_width = tile_height = 32
 WIDTH = HEIGHT = 512
@@ -792,6 +783,7 @@ enemy_group = pygame.sprite.Group()
 deadenemy_group = pygame.sprite.Group()
 statusbar_group = pygame.sprite.Group()
 
+# спрайты
 tile_images = {'wall': load_image('wall.png'),
                'empty': load_image('empty.png'),
                'floor': load_image('floor.png')}
@@ -804,6 +796,8 @@ animated_images = {'player': load_image('player.png', -1),
                    'slime': load_image('slime.png', -1),
                    'spider': load_image('spider.png', -1)
                    }
+
+# характеристики фрагов
 enemies = {'ghost': {'speed': 1,
                      'health': 2,
                      'power': 1,

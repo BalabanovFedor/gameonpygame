@@ -3,6 +3,7 @@ from game import game, WIDTH, HEIGHT, screen, load_image, terminate
 
 
 def btn_img(s, color, fontStyle, fontHeight):
+    """создание изображения кнопки"""
     font = pygame.font.Font(fontStyle, fontHeight)
     text_coord = 2
     string_rendered = font.render(s, 1, color)
@@ -15,6 +16,7 @@ def btn_img(s, color, fontStyle, fontHeight):
 
 
 def buttons_init():
+    """инициализация кнопок"""
     Button('start', (all_sprites, menubtn_group, btn_group), (30, 40, 193, 50), levelbtn_group.draw, (screen,),
            btn_img('START', purple, None, 90))  # start
     levelbtns_init()
@@ -29,6 +31,7 @@ def buttons_init():
 
 
 def levelbtns_init():
+    """инициализация кнопок уровней"""
     rect = pygame.Rect(0, 0, 35, 40)
     levels = {1: '1.txt', 2: '2.txt', 3: '3.txt', 4: "4.txt"}
     x0, y0 = 280, 50
@@ -54,6 +57,7 @@ def footsp():
 
 
 def rulsp():
+    """создание спрайта правил"""
     intro_text = ["Для ходьбы используйте",
                   "клавиши WASD,",
                   "для стрельбы - стрелочки,",
@@ -80,6 +84,8 @@ def rulsp():
 
 
 class Button(pygame.sprite.Sprite):
+    """класс кнопки"""
+
     def __init__(self, type, groups, rect, func, func_args=None, img=None):
         super(Button, self).__init__(groups)
         self.type = type
@@ -111,6 +117,8 @@ class Button(pygame.sprite.Sprite):
 
 
 def clear():
+    """переопределение данных"""
+
     global btn_group, menubtn_group, levelbtn_group, all_sprites, rulesp_group, footsp_group, FPS
     btn_group = pygame.sprite.Group()
     menubtn_group = pygame.sprite.Group()
@@ -125,6 +133,7 @@ def clear():
 
 
 def menu():
+    """функция осуществляющая отображение меню"""
     pygame.init()
     pygame.mixer.init()
     mix = pygame.mixer
